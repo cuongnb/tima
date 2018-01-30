@@ -4,6 +4,7 @@ import com.cuongnb.tima.model.Lender;
 import com.cuongnb.tima.model.LenderLoanScore;
 import com.cuongnb.tima.model.LenderProfile;
 import com.cuongnb.tima.model.Loan;
+import com.cuongnb.tima.process.ConvertToVec;
 import com.cuongnb.tima.utils.MapUtils;
 
 import java.io.FileNotFoundException;
@@ -41,7 +42,19 @@ public class ReadData {
         }
     }
 
-    public static void main(String[] args) {
+    private void convertToVec() throws FileNotFoundException {
+        PrintWriter writer = new PrintWriter("data/vec.csv");
+//        writer.println(String.format("lenderGender","loanGender","productType","lenderCity","loanCity" +
+//                "lenderDistrict","loanDistrict","loanTime","totalMoney","campaign","medium","source", "vip", "isAccept"));
+        Map<Integer, Lender> lenderMaps = requireNonNull(readLender()).stream().collect(toMap(Lender::getLenderId, lender -> lender));
+        List<Loan> loans = readLoan("loan.tsv");
+        assert loans != null;
+        loans.stream().filter(loan -> lenderMaps.containsKey(loan.getLenderId()))
+                .map(loan -> ConvertToVec.convertToVec(loan, lenderMaps.get(loan.getLenderId())))
+                .forEach(writer::println);
+    }
+
+    public static void buiProfile() {
         ReadData readData = new ReadData();
         Map<Integer, List<Loan>> lenderLoans = requireNonNull(readData.readLoan("tima.tsv")).stream().collect(groupingBy(Loan::getLenderId));
 
@@ -50,6 +63,7 @@ public class ReadData {
         Map<Integer, Lender> lenderMaps = requireNonNull(readData.readLender()).stream().collect(toMap(Lender::getLenderId, lender -> lender));
         lenderLoans.forEach((integer, loans) ->
                 lenderProfiles.add(new LenderProfile(lenderMaps.get(integer), integer, loans)));
+
 
         /*Test*/
         List<Loan> loanTests = readData.readLoan("loanToTest.tsv");
@@ -64,5 +78,12 @@ public class ReadData {
                 .collect(toMap(LenderLoanScore::getLenderId, LenderLoanScore::getScore));
         topLender = MapUtils.sortByValueDESC(topLender);
         topLender.forEach((integer, aDouble) -> System.out.println(integer + "\t" + aDouble));
+
+        lenderProfiles.forEach(lenderProfile -> System.out.println(lenderProfile.toString()));
+    }
+
+    public static void main(String[] args) throws FileNotFoundException {
+        ReadData readData = new ReadData();
+        readData.convertToVec();
     }
 }

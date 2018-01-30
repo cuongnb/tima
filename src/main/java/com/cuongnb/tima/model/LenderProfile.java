@@ -102,4 +102,24 @@ public class LenderProfile {
 
         return score / (this.totalLoanPush * 1.0);
     }
+
+    @Override
+    public String toString() {
+        return "LenderProfile{" +
+                "lenderId=" + lenderId +
+                ", totalLoanAccept=" + totalLoanAccept +
+                ", totalLoanPush=" + totalLoanPush +
+                ", vip=" + vip +
+                ", gender=" + gender +
+                ", isOneLender=" + isOneLender +
+                ", citiesLoan=" + citiesLoan +
+                ", genderLoan=" + genderLoan +
+                ", productType=" + productType +
+                ", totalMoney=" + totalMoney +
+                ", loanTime=" + loanTime +
+                ", mapSources=" + mapSources +
+                ", mapMedium=" + mapMedium +
+                ", mapCampaign=" + mapCampaign +
+                '}';
+    }
 }
